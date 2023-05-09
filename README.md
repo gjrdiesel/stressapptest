@@ -6,18 +6,18 @@ Different ways to trigger OOMs
 ```bash
 # Uncomment in `deployment.yaml`
 # command: [ "/memtest" ] # Run the OOM trigger directly
-kubectl apply -f deployment.yaml
+$ kubectl apply -f deployment.yaml
 
-kubectl logs deployments/bash
+$ kubectl logs deployments/bash
 got 1 MiB
 ...
 got 64281 MiB
 
-kubectl get pods
+$ kubectl get pods
 NAME                    READY   STATUS      RESTARTS      AGE
 bash-5f94b5d85f-4wjhh   0/1     OOMKilled   1 (24s ago)   44s
 
-kubectl describe pods/bash-5f94b5d85f-4wjhh
+$ kubectl describe pods/bash-5f94b5d85f-4wjhh
 ...
   Command:
     /memtest
@@ -36,9 +36,9 @@ Notice the script never exits, restarts stay 0,
 ```bash
 # Uncomment in `deployment.yaml`
 # command: [ "bash","script-memtest.sh" ] # Run the OOM in a bg job
-kubectl apply -f deployment.yaml
+$ kubectl apply -f deployment.yaml
 
-kubectl logs deployments/bash
+$ kubectl logs deployments/bash
 Running memtest via the script...
 Sleeping for remainder of time...
 got 1 MiB
@@ -47,9 +47,12 @@ got 63987 MiB
 got 63988 MiB
 ...
 
+$ kubectl get pods
 NAME                    READY   STATUS    RESTARTS   AGE
 bash-7787c5c59f-v8lxg   1/1     Running   0          77s
 
+$ kubectl describe pods/bash-7787c5c59f-v8lxg
+...
     Command:
       bash
       script-memtest.sh
@@ -57,7 +60,9 @@ bash-7787c5c59f-v8lxg   1/1     Running   0          77s
       Started:      Mon, 08 May 2023 21:43:59 -0400
     Ready:          True
     Restart Count:  0
+...
 
+$ dmesg
 [3779693.592735] Tasks state (memory values in pages):
 [3779693.592736] [  pid  ]   uid  tgid total_vm      rss pgtables_bytes swapents oom_score_adj name
 [3779693.592742] [   4426]     0  4426     1088      764    45056       62          -997 bash
