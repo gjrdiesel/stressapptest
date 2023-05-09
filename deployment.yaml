@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  labels:
+    app: bash
+  name: bash
+  namespace: oom-testing
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: bash
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: bash
+    spec:
+      containers:
+        - image: gjrdiesel/stressapptest:latest
+          imagePullPolicy: Always
+          name: ubuntu
+          #command: [ "tail", "-f", "/dev/null" ] # For debugging
+          #command: [ "/memtest" ] # Run the OOM trigger directly
+          #command: [ "bash","script-memtest.sh" ] # Run the OOM in a bg job
+          command: [ "/memtest2" ] # Run the overallocate OOM trigger directly
+          #command: [ "bash","script-memtest2.sh" ] # Run the overallocate OOM in a bg job
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
